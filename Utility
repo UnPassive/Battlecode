@@ -1,0 +1,73 @@
+package ProtoPlayer;
+
+import java.util.ArrayList;
+
+import battlecode.common.*;
+
+public class Utility{
+
+	static int count = 1;
+	static int[] possibleDirection = new int[]{0,1,-1,2,-2,3,-3,4};
+	static ArrayList<MapLocation> pastLocations = new ArrayList<MapLocation>();
+
+	public static void advance(Direction ahead, int type) throws GameActionException {
+		
+		int callType = type;
+		RobotController rc = RobotPlayer.rc;
+		Direction viable = null;
+
+		for(int i:possibleDirection){
+			Direction candidateDirection = Direction.values()[(ahead.ordinal()+i+8)%8];
+			MapLocation candidateLocation = rc.getLocation().add(candidateDirection);
+			if(rc.canMove(candidateDirection)&& !pastLocations.contains(candidateLocation)){
+				viable = candidateDirection;
+				break;
+			}
+		}
+		
+		if(callType == 1){
+			pastLocations.add(rc.getLocation());
+			if(pastLocations.size()>10)
+				pastLocations.remove(0);
+			rc.move(viable);
+		}
+	}
+	
+	public static Direction isClear(Direction ahead){
+		
+		RobotController rc = RobotPlayer.rc;
+		Direction viable = null;
+		
+		for(int i:possibleDirection){
+			Direction candidateDirection = Direction.values()[(ahead.ordinal()+i+8)%8];
+			MapLocation candidateLocation = rc.getLocation().add(candidateDirection);
+			if(rc.canMove(candidateDirection)&& !pastLocations.contains(candidateLocation)){
+				viable = candidateDirection;
+				break;
+			}
+		}
+		return viable;
+	}
+	
+	public static void attack() throws GameActionException{
+		RobotController rc = RobotPlayer.rc;
+
+
+		RobotInfo[] enemies = rc.senseHostileRobots(rc.getLocation(), rc.getType().attackRadiusSquared);
+
+
+		if(rc.isCoreReady() && enemies.length>0){
+			if(rc.isWeaponReady()){
+				rc.attackLocation(enemies[0].location);
+			}
+		}
+		else{
+			if(enemies.length == 0 && rc.isCoreReady()){
+				advance(Direction.WEST,1);
+			}
+		}	
+	}
+
+
+	
+}
