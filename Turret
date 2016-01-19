@@ -1,0 +1,15 @@
+package ProtoPlayer;
+
+import java.util.ArrayList;
+
+import battlecode.common.*;
+
+public class Turret{
+
+	
+		public static void setRun() throws GameActionException{
+			Utility.attack();
+		}
+	
+
+}
