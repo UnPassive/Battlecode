@@ -9,6 +9,7 @@ public class Utility{
 	static int count = 1;
 	static int[] possibleDirection = new int[]{0,1,-1,2,-2,3,-3,4};
 	static ArrayList<MapLocation> pastLocations = new ArrayList<MapLocation>();
+	static MapLocation archonLocation;
 
 	public static void advance(Direction ahead, int type) throws GameActionException {
 		
@@ -62,8 +63,10 @@ public class Utility{
 			}
 		}
 		else{
+			MapLocation arc = archonLocation.add(Direction.NORTH, 4);
 			if(enemies.length == 0 && rc.isCoreReady()){
-				advance(Direction.WEST,1);
+				advance(rc.getLocation().directionTo(arc),1);
+				
 			}
 		}	
 	}
@@ -73,11 +76,11 @@ public class Utility{
 		rc.broadcastMessageSignal(rc.getTeam().ordinal(), 0, 255);
 	}
 
-	public static void followingInstructions() {
+	public static MapLocation followingInstructions() {
 		RobotController rc = RobotPlayer.rc;
 		Signal[] incomingMessages = rc.emptySignalQueue();
 		if(incomingMessages.length==0)
-			return;
+			return null;
 		Signal currentMessage = null;
 		for(int messageIndex = 0; messageIndex<incomingMessages.length;messageIndex++)
 		{
@@ -86,9 +89,9 @@ public class Utility{
 				break;
 		}
 		if(currentMessage==null)
-			return;
-		MapLocation archonLocation = currentMessage.getLocation();
-
+			return null;
+		archonLocation = currentMessage.getLocation();
+		return archonLocation;
 	}
 	
 }
