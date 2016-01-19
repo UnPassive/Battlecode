@@ -9,18 +9,30 @@ public class Archon{
 	public static ArrayList<RobotInfo> closeNeut = new ArrayList<RobotInfo>();
 	public static ArrayList<RobotInfo> farNeut = new ArrayList<RobotInfo>();
 	public static boolean neutInProx = true;
+	public static int id;
 
 	public static void setRun() throws GameActionException{
-		
-		if(neutInProx){
+
+		if(rc.getRoundNum()==0)
+		{
+			Signal[] incomingMessages = rc.emptySignalQueue();
+			id = incomingMessages.length;
+			rc.broadcastMessageSignal(0, 0, 1000);
+		}else{
+			if(id == 0){
+				Utility.sendingInstructions();
+			}else{
+				Utility.followingInstructions();
+			}
+			if(neutInProx){
 				activeNeut();
-		}
-		else{
-			if(rc.isCoreReady() && rc.canBuild(Direction.NORTH, RobotType.SOLDIER)){
-				rc.build(Utility.isClear(Direction.NORTH), RobotType.SOLDIER);
+			}
+			else{
+				if(rc.isCoreReady() && rc.canBuild(Direction.NORTH, RobotType.SOLDIER)){
+					rc.build(Utility.isClear(Direction.NORTH), RobotType.SOLDIER);
+				}
 			}
 		}
-		
 
 	}
 
@@ -39,7 +51,7 @@ public class Archon{
 		if((farNeut.isEmpty() && closeNeut.isEmpty()) || rc.getRoundNum() > 9){
 			neutInProx = false;
 		}
-		
+
 		if(closeNeut.size()>0){
 			for(int i = 0; i<closeNeut.size(); i++){
 				if(rc.isCoreReady()){
@@ -54,5 +66,5 @@ public class Archon{
 			}
 		}
 	}
-	
+
 }
