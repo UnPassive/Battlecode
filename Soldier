@@ -8,6 +8,7 @@ public class Soldier{
 
 	
 		public static void setRun() throws GameActionException{
+			MapLocation archon = Utility.followingInstructions();
 			Utility.attack();
 		}
 	
