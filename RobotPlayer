@@ -1,0 +1,68 @@
+package ProtoPlayer;
+
+import java.util.ArrayList;
+
+import battlecode.common.*;
+
+public class RobotPlayer{
+
+	static Direction movingDirection = Direction.NORTH_EAST;
+	static RobotController rc;
+
+	public static void run(RobotController rcIn) throws GameActionException{
+		rc = rcIn;
+		if(rc.getTeam() == Team.B){
+			movingDirection = Direction.SOUTH_WEST;
+		}
+		while(true){
+
+			try {
+				repeat();
+				Clock.yield();
+			} catch (GameActionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+
+	public static void repeat() throws GameActionException{
+			switch (rc.getType()){
+			
+			case ARCHON:
+				if(rc.isCoreReady()){
+					Archon.setRun();
+				}
+				break;
+			case SOLDIER:
+				if(rc.isCoreReady()){
+					Soldier.setRun();
+				}
+				break;
+			case GUARD:
+				if(rc.isCoreReady()){
+					Guard.setRun();
+				}
+				break;
+			case SCOUT:
+				if(rc.isCoreReady()){
+					Scout.setRun();
+				}
+				break;
+			case VIPER:
+				if(rc.isCoreReady()){
+					Viper.setRun();
+				}
+				break;
+			case TURRET:
+				if(rc.isCoreReady()){
+					Turret.setRun();
+				}
+				break;
+			default:
+				break;
+			}
+	}
+
+}
