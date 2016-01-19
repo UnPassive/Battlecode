@@ -5,67 +5,26 @@ import java.util.ArrayList;
 import battlecode.common.*;
 
 public class Scout{
-	public static MapLocation enemyArchon;
-	
-		public static RobotController rc = RobotPlayer.rc;
-		public static MapLocation enArchLoc;
+	public static MapLocation archon;
+	public static RobotController rc = RobotPlayer.rc;
 
-	
-		public static void setRun() throws GameActionException{
-			
-			search();
-			
+	public static void setRun() throws GameActionException{
+		archon = Utility.followingInstructions();
+		Utility.attack();
+		
+		if(rc.getLocation().distanceSquaredTo(archon) < 24 && rc.isCoreReady()){
+			Utility.advance(rc.getLocation().directionTo(archon).opposite(),1);
+		}
+		else{
+			if(rc.isCoreReady()){
+				Utility.advance(rc.getLocation().directionTo(archon).opposite(),1);
+			}
 		}
 		
-		public static void wander() throws GameActionException{
-			RobotInfo[] archonLoc = rc.senseNearbyRobots(53, rc.getTeam());
-			MapLocation locArchon = null;
-			
-			for(int i = 0; i < archonLoc.length; i++){
-				if(archonLoc[i].type == RobotType.ARCHON){
-					locArchon = archonLoc[i].location;
-					break;
-				}
-			}	
-			if(rc.getLocation().distanceSquaredTo(locArchon) < 24 && rc.isCoreReady()){
-				Utility.advance(rc.getLocation().directionTo(locArchon).opposite(),1);
-			}
-			else{
-				if(rc.isCoreReady()){
-					Utility.advance(rc.getLocation().directionTo(locArchon).opposite(),1);
-				}
-			}
-		}
-
-		public static void search() throws GameActionException{
-			
-			RobotInfo [] enemyArchonLoc = rc.senseNearbyRobots(53, rc.getTeam().opponent());
-			RobotInfo [] zombieLoc = rc.senseNearbyRobots(53, Team.ZOMBIE);
-			MapLocation archonLoc = null;
-			
-			for(int i = 0; i < enemyArchonLoc.length; i++){
-				if(enemyArchonLoc[i].type == RobotType.ARCHON){
-					archonLoc = enemyArchonLoc[i].location;
-					break;
-				}
-			}
-			
-			enArchLoc = archonLoc;
-			
-			for(int i = 0; i< zombieLoc.length; i++){
-				if(rc.getLocation().distanceSquaredTo(zombieLoc[i].location) < 5 || rc.getLocation().distanceSquaredTo(enemyArchonLoc[i].location) < 5){
-					if(rc.isCoreReady()){
-					Utility.advance(rc.getLocation().directionTo(enArchLoc), 1);
-					break;
-					}
-				}
-			}
-			
-			if(enArchLoc != null && rc.isCoreReady()){
-				rc.broadcastMessageSignal(archonLoc.x, archonLoc.y, 53);
-			}
-			wander();
-			
-		}
+		
+		
+		
+		
+	}
 
 }
