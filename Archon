@@ -1,0 +1,58 @@
+package ProtoPlayer;
+
+import java.util.ArrayList;
+
+import battlecode.common.*;
+
+public class Archon{
+	public static RobotController rc = RobotPlayer.rc;
+	public static ArrayList<RobotInfo> closeNeut = new ArrayList<RobotInfo>();
+	public static ArrayList<RobotInfo> farNeut = new ArrayList<RobotInfo>();
+	public static boolean neutInProx = true;
+
+	public static void setRun() throws GameActionException{
+		
+		if(neutInProx){
+				activeNeut();
+		}
+		else{
+			if(rc.isCoreReady() && rc.canBuild(Direction.NORTH, RobotType.SOLDIER)){
+				rc.build(Utility.isClear(Direction.NORTH), RobotType.SOLDIER);
+			}
+		}
+		
+
+	}
+
+	public static void activeNeut() throws GameActionException{
+
+		RobotInfo[] neutR = rc.senseNearbyRobots(25, Team.NEUTRAL);
+
+		for(int i = 0; i<neutR.length; i++){
+			if(rc.getLocation().distanceSquaredTo(neutR[i].location) < 3){
+				closeNeut.add(neutR[i]);
+			}
+			if(rc.getLocation().distanceSquaredTo(neutR[i].location) >= 3){
+				farNeut.add(neutR[i]);
+			}
+		}
+		if((farNeut.isEmpty() && closeNeut.isEmpty()) || rc.getRoundNum() > 9){
+			neutInProx = false;
+		}
+		
+		if(closeNeut.size()>0){
+			for(int i = 0; i<closeNeut.size(); i++){
+				if(rc.isCoreReady()){
+					rc.activate(closeNeut.remove(0).location);
+				}
+			}
+		}else if(farNeut.size()>0){
+			for(int i = 0; i<farNeut.size(); i++){
+				if(rc.isCoreReady()){
+					Utility.advance(rc.getLocation().directionTo(farNeut.get(i).location),1);
+				}
+			}
+		}
+	}
+	
+}
