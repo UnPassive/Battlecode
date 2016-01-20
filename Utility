@@ -1,20 +1,24 @@
 package ProtoPlayer;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import battlecode.common.*;
 
 public class Utility{
 
+	static RobotController rc = RobotPlayer.rc;
 	static int count = 1;
+	public static boolean dig = false;
 	static int[] possibleDirection = new int[]{0,1,-1,2,-2,3,-3,4};
 	static ArrayList<MapLocation> pastLocations = new ArrayList<MapLocation>();
 	static MapLocation archonLocation;
+	static Random rnd;
 
 	public static void advance(Direction ahead, int type) throws GameActionException {
 		
 		int callType = type;
-		RobotController rc = RobotPlayer.rc;
+		
 		Direction viable = null;
 
 		for(int i:possibleDirection){
@@ -26,17 +30,35 @@ public class Utility{
 			}
 		}
 		
-		if(callType == 1){
+		if(callType == 1 && viable != null){
 			pastLocations.add(rc.getLocation());
 			if(pastLocations.size()>10)
 				pastLocations.remove(0);
 			rc.move(viable);
 		}
+		else if(callType == 2 &&  viable != null){
+			pastLocations.add(rc.getLocation());
+			if(pastLocations.size()>5)
+				pastLocations.remove(0);
+			rc.move(viable);
+		}
+		else if(viable == null){
+			dig = true;
+		}
+		
+		if(dig == true){
+			if(rc.canMove(viable) && rc.isCoreReady()){
+				rc.move(viable);
+			}
+			else if(rc.senseRubble(rc.getLocation().add(viable))> GameConstants.RUBBLE_OBSTRUCTION_THRESH && rc.isCoreReady()){
+				rc.clearRubble(viable);
+			}
+		}
+		
 	}
 	
 	public static Direction isClear(Direction ahead){
 		
-		RobotController rc = RobotPlayer.rc;
 		Direction viable = null;
 		
 		for(int i:possibleDirection){
@@ -50,34 +72,56 @@ public class Utility{
 		return viable;
 	}
 	
-	public static void attack() throws GameActionException{
-		RobotController rc = RobotPlayer.rc;
+	public static void attack(int moveType) throws GameActionException{
 
 
 		RobotInfo[] enemies = rc.senseHostileRobots(rc.getLocation(), rc.getType().attackRadiusSquared);
 
 
-		if(rc.isCoreReady() && enemies.length>0){
+		if(rc.isCoreReady() && enemies.length > 0){
 			if(rc.isWeaponReady()){
 				rc.attackLocation(enemies[0].location);
 			}
 		}
-		else{
+		else if(rc.getType().canMove()){
+			
 			MapLocation arc = archonLocation.add(Direction.NORTH, 4);
 			if(enemies.length == 0 && rc.isCoreReady()){
-				advance(rc.getLocation().directionTo(arc),1);
+				advance(rc.getLocation().directionTo(arc),moveType);
 				
 			}
 		}	
 	}
+	
+	
+	public static void circle(int radiusC) throws GameActionException{
+		
+		if(rc.getLocation().distanceSquaredTo(archonLocation)>radiusC && rc.isCoreReady()){
+			advance(rc.getLocation().directionTo(archonLocation),1);
+		}
+		else if(rc.getLocation().distanceSquaredTo(archonLocation)<8 && rc.isCoreReady()){
+			advance(rc.getLocation().directionTo(archonLocation).opposite(),1);
+		}
+		else{
+			if(rc.isCoreReady() && rc.getRoundNum()%2 == 0){
+			advance(rc.getLocation().directionTo(archonLocation).rotateRight().rotateRight(),1);
+			}
+			else if(rc.isCoreReady() && rc.getRoundNum()%2 != 0){
+				advance(rc.getLocation().directionTo(archonLocation).rotateLeft().rotateLeft(),1);
+				}
+		}
+		
+	}
+
+
+	
 	public static void sendingInstructions() throws GameActionException {
-		RobotController rc = RobotPlayer.rc;
 		
 		rc.broadcastMessageSignal(rc.getTeam().ordinal(), 0, 255);
 	}
 
 	public static MapLocation followingInstructions() {
-		RobotController rc = RobotPlayer.rc;
+
 		Signal[] incomingMessages = rc.emptySignalQueue();
 		if(incomingMessages.length==0)
 			return null;
@@ -92,6 +136,11 @@ public class Utility{
 			return null;
 		archonLocation = currentMessage.getLocation();
 		return archonLocation;
+	}
+	
+	public static Direction randomDirection() {
+		rnd = new Random(rc.getID());
+		return Direction.values()[(int)(rnd.nextDouble()*8)];
 	}
 	
 }
