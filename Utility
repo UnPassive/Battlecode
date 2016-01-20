@@ -79,8 +79,13 @@ public class Utility{
 		RobotInfo[] enemies = rc.senseHostileRobots(rc.getLocation(), rc.getType().attackRadiusSquared);
 
 
-		if(rc.isCoreReady() && enemies.length > 0){
+		if(rc.isCoreReady() && enemies.length > 0 && rc.getType() != RobotType.TURRET){
 			if(rc.isWeaponReady()){
+				rc.attackLocation(enemies[0].location);
+			}
+		}
+		else if (rc.isCoreReady() && enemies.length > 0 && rc.getType() == RobotType.TURRET){
+			if(rc.isWeaponReady() && rc.getLocation().distanceSquaredTo(enemies[0].location) > 5){
 				rc.attackLocation(enemies[0].location);
 			}
 		}
