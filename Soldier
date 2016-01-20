@@ -1,4 +1,4 @@
-package ProtoPlayer;
+ackage ProtoPlayer;
 
 import java.util.ArrayList;
 
@@ -6,11 +6,13 @@ import battlecode.common.*;
 
 public class Soldier{
 
+		public static Direction nextDir;
 	
 		public static void setRun() throws GameActionException{
 			MapLocation archon = Utility.followingInstructions();
-			Utility.attack();
+			Utility.attack(2);
 		}
 	
+
 
 }
