@@ -16,7 +16,7 @@ public class Utility{
 	static Random rnd;
 
 	public static void advance(Direction ahead, int type) throws GameActionException {
-
+	
 		int callType = type;
 
 		Direction viable = null;
