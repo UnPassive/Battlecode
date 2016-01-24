@@ -36,8 +36,11 @@ public class Archon{
 			Direction randD = Utility.randomDirection();
 			if(id == true){
 				shouldRun();
+				if(rc.getRoundNum()<25)
 				Utility.sendingInstructions();
+				
 				randD = Utility.randomDirection();
+				
 				if(Utility.isClear(randD)!=null){
 					randD=Utility.isClear(randD);
 					if(rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER))
@@ -48,15 +51,18 @@ public class Archon{
 				MapLocation archon = Utility.followingInstructions();
 				if(archon==null)
 					archon=rc.getLocation();
+				
 				Direction randomD = Utility.randomDirection();
 
 				shouldRun();
+				
+				findResource();
 
 				if(neutInProx){
 					activeNeut();
 				}
 
-				if(rc.getRoundNum()< 45 && rc.getLocation().distanceSquaredTo(archon) > 8 && rc.isCoreReady()){
+				if(rc.getRoundNum()< 90 && rc.getLocation().distanceSquaredTo(archon) > 8 && rc.isCoreReady()){
 					Utility.advance(rc.getLocation().directionTo(archon), 1);
 
 				}
@@ -70,12 +76,22 @@ public class Archon{
 		}
 	}
 
+	public static void findResource() throws GameActionException {
+		MapLocation [] parts = rc.sensePartLocations(1750);
+		//RobotInfo[] neutral = 
+		
+		if(rc.isCoreReady() && parts.length>0){
+			Utility.advance(rc.getLocation().directionTo(parts[0]),1);
+		}
+		
+	}
+
 	public static void shouldRun() throws GameActionException{
 		RobotInfo [] enemies = rc.senseHostileRobots(rc.getLocation(), 24);
 		RobotInfo [] enemiesFar = rc.senseHostileRobots(rc.getLocation(), 50);
 
 
-		if(enemies.length > 4 && rc.isCoreReady()){
+		if(enemies.length >=1 && rc.isCoreReady()){
 			Utility.advance((rc.getLocation().directionTo(enemies[0].location)).opposite(), 1);
 		}
 		else if(enemiesFar.length > 6 && rc.isCoreReady()){
@@ -102,7 +118,7 @@ public class Archon{
 		if(closeNeut.size()>0){
 			for(int i = 0; i<closeNeut.size(); i++){
 				if(rc.isCoreReady()){
-					rc.activate(closeNeut.remove(0).location);
+					rc.activate(closeNeut.remove(i).location);
 				}
 			}
 		}else if(farNeut.size()>0){
@@ -115,4 +131,3 @@ public class Archon{
 	}
 
 }
-
