@@ -45,18 +45,21 @@ public class Archon{
 		else{
 			Direction randD = Utility.randomDirection();
 			if(LA){
-				shouldRun();
+				//shouldRun();
+				if(rc.getRoundNum()< 5){
+					Utility.moveFromWall();
+				}
 				defense();
 				if(rc.getRoundNum()<25 || rc.getRoundNum()%50==0)
 					Utility.sendingInstructions();
 
 				randD = Utility.randomDirection();
 
-				if(Utility.isClear(randD)!=null){
-					randD=Utility.isClear(randD);
-					if(rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER))
-						rc.build(randD, RobotType.SOLDIER);
-				}
+//				if(Utility.isClear(randD)!=null){
+//					randD=Utility.isClear(randD);
+//					if(rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER))
+//						rc.build(randD, RobotType.SOLDIER);
+//				}
 			}
 
 			if(sA)
@@ -130,6 +133,7 @@ public class Archon{
 		}
 	}
 
+	
 	public static void findResource() throws GameActionException {
 		MapLocation [] parts = rc.sensePartLocations(1750);
 		//RobotInfo[] neutral = 
@@ -185,8 +189,9 @@ public class Archon{
 	}
 	public static void defense() throws GameActionException{
 		Direction randD = Utility.randomDirection();
-		RobotInfo[] surround = rc.senseNearbyRobots(4);
+		RobotInfo[] surround = rc.senseNearbyRobots(2);
 		int numTurrets = 0;
+		
 		
 		for(int i = 0; i< surround.length; i++){
 			if(surround[i].type == RobotType.TURRET || surround[i].type == RobotType.TTM){
@@ -195,7 +200,7 @@ public class Archon{
 		}
 		
 		
-		if(rc.getRoundNum()< 75){
+		if(rc.getRoundNum()< 100){
 			if(Utility.isClear(randD)!=null){
 				randD=Utility.isClear(randD);
 				if(rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER))
@@ -203,15 +208,20 @@ public class Archon{
 			}
 		}
 		else if(numTurrets > 7){
-			rc.broadcastMessageSignal(51 ,0 ,9);
+			rc.broadcastMessageSignal(51 ,0 ,4);
 		}
 		else{
 			stepping = Utility.isClear(stepping);
-			if(Utility.isClear(stepping)!=null){
+			if(stepping != null && rc.canBuild(stepping, RobotType.TURRET)){
 				if(rc.isCoreReady()&& rc.canBuild(stepping, RobotType.TURRET))
 					rc.build(stepping, RobotType.TURRET);
 			}
+			if(stepping != null){
 			stepping = stepping.rotateRight();
+			}
+			else{
+				stepping = Direction.NORTH;
+			}
 		}
 	}
 
