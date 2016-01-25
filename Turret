@@ -6,10 +6,55 @@ import battlecode.common.*;
 
 public class Turret{
 
+	public static RobotController rc = RobotPlayer.rc;
+	public static MapLocation nextPos = null;
+	public static MapLocation arch = null;
 	
 		public static void setRun() throws GameActionException{
-			Utility.attack();
+			attack();
+			position();
 		}
-	
+		
+		public static void position() throws GameActionException{
+			boolean unpack = false;
+			nextPos = rc.getLocation();
+			Signal[] received = rc.emptySignalQueue();
+			boolean moveOut = false;
+			for (Signal s : received) {
+				if (s.getMessage() != null && s.getMessage()[0] == 51) {
+					moveOut = true;
+					arch = s.getLocation();
+					break;
+				}
+			}
+			
+			if(moveOut == true && arch != null){
+				rc.pack();
+				Utility.advance(Utility.isClear(rc.getLocation().directionTo(arch).opposite()),1);
+				
+			}
+			
+			if(rc.getType() == RobotType.TTM && rc.getLocation() == nextPos && arch != null){
+				Utility.advance(Utility.isClear(rc.getLocation().directionTo(arch).opposite()),1);
+				moveOut = false;
+			}
+			
+			if(rc.getType() == RobotType.TTM && rc.getLocation() != nextPos){
+				rc.unpack();
+				moveOut = false;
+			}
+			
+		
+		}
+
+		public static void attack() throws GameActionException{
+			RobotInfo[] enemies = rc.senseHostileRobots(rc.getLocation(), rc.getType().attackRadiusSquared);
+
+			if (rc.isCoreReady() && enemies.length > 0 && rc.getType() == RobotType.TURRET){
+				if(rc.isWeaponReady() && rc.getLocation().distanceSquaredTo(enemies[0].location) > 5){
+					rc.attackLocation(enemies[0].location);
+				}
+			}
+		}
 
 }
