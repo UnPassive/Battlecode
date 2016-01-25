@@ -179,7 +179,7 @@ public class Utility{
 				CD = Direction.values()[(Direction.NORTH.ordinal()+i+8)%8];
 				CL = rc.getLocation().add(CD);
 				if(rc.getType().canClearRubble() && rc.isCoreReady() ){
-					if(rc.senseRubble(rc.getLocation().add(CD))> 20)
+					if(rc.senseRubble(rc.getLocation().add(CD))> 50 &&rc.senseRubble(rc.getLocation().add(CD))<=200)
 					{
 						if(rc.getLocation().add(CD)!=null)
 						{
