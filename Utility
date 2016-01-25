@@ -38,15 +38,17 @@ public class Utility{
 
 		if(callType == 1 && viable != null){
 			pastLocations.add(rc.getLocation());
-			if(pastLocations.size()>10)
+			if(pastLocations.size()>10 && rc.isCoreReady())
 				pastLocations.remove(0);
-			rc.move(viable);
+			if(rc.isCoreReady())
+				rc.move(viable);
 		}
 		else if(callType == 2 &&  viable != null){
 			pastLocations.add(rc.getLocation());
-			if(pastLocations.size()>5)
+			if(pastLocations.size()>5 && rc.isCoreReady())
 				pastLocations.remove(0);
-			rc.move(viable);
+			if(rc.isCoreReady())
+				rc.move(viable);
 		}
 		else if(viable == null){  
 			dig();
@@ -127,6 +129,10 @@ public class Utility{
 				isGood++;
 				offMap = rc.getLocation().add(checking);
 			}
+			else{
+				offMap = rc.getLocation().add(checking);
+				break;
+			}
 			checking = checking.rotateRight();
 		}
 		if(isGood< 8){
@@ -134,9 +140,10 @@ public class Utility{
 			if(rc.isCoreReady() && goodMove != null){
 				rc.move(goodMove);
 			}
+
 		}
 	}
-	
+
 	public static void circle(int radiusC) throws GameActionException{
 
 		if(rc.getLocation().distanceSquaredTo(archonLocation)>radiusC && rc.isCoreReady()){
