@@ -46,7 +46,8 @@ public class Archon{
 			Direction randD = Utility.randomDirection();
 			if(LA){
 				//shouldRun();
-				if(rc.getRoundNum()< 5){
+				
+				if(rc.getRoundNum()< 10){
 					Utility.moveFromWall();
 				}
 				defense();
@@ -69,14 +70,14 @@ public class Archon{
 				shouldRun();
 				if(rc.getRoundNum()<150)
 					findResource();
-				if(LArchonLocation != null && rc.isCoreReady()&& rc.getRoundNum()<150){
+				if(LArchonLocation != null && rc.isCoreReady()&& rc.getRoundNum()<200){
 					LArchonLocation.add(Direction.SOUTH, 5);
 					Utility.advance(rc.getLocation().directionTo(LArchonLocation),1);
 				}
 				else{
 					randD = Utility.randomDirection();
 					randD=Utility.isClear(randD);
-					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SCOUT))
+					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SCOUT) && rc.getTeamParts()>200)
 						rc.build(randD, RobotType.SCOUT);
 				}
 
@@ -95,7 +96,7 @@ public class Archon{
 				else{
 					randD = Utility.randomDirection();
 					randD=Utility.isClear(randD);
-					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER))
+					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER) && rc.getTeamParts()>131)
 						rc.build(randD, RobotType.SOLDIER);
 
 				}
