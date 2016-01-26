@@ -47,100 +47,75 @@ public class Archon{
 			Direction randD = Utility.randomDirection();
 			if(LA){
 				//shouldRun();
-				
+
 				if(rc.getRoundNum()< 10){
 					Utility.moveFromWall();
 				}
-				
+
 				if(rc.getRoundNum()<25 || rc.getRoundNum()%50==0)
 					Utility.sendingInstructions();
-				
+
 				repair();
 				defense();
-				
+				Utility.dig();
 
 				randD = Utility.randomDirection();
 
-//				if(Utility.isClear(randD)!=null){
-//					randD=Utility.isClear(randD);
-//					if(rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER))
-//						rc.build(randD, RobotType.SOLDIER);
-//				}
+				//				if(Utility.isClear(randD)!=null){
+				//					randD=Utility.isClear(randD);
+				//					if(rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER))
+				//						rc.build(randD, RobotType.SOLDIER);
+				//				}
 			}
 
-			if(sA)
+			else if(sA)
 			{
 				LArchonLocation = Utility.followingInstructions();
 				repair();
-				//activeNeut();
+				activeNeut();
 				shouldRun();
-				if(rc.getRoundNum()<150){
-					findResource();
-				}
-				else if(rc.getRoundNum()>150){
-					activeNeut();
-				}
-				if(LArchonLocation != null && rc.isCoreReady()&& rc.getLocation().distanceSquaredTo(LArchonLocation) > 5 && rc.getRoundNum()<150){
+				findResource();
+
+				if(LArchonLocation != null && rc.isCoreReady()&& rc.getLocation().distanceSquaredTo(LArchonLocation) > 5 && rc.getRoundNum()<200){
 					//LArchonLocation.add(Direction.SOUTH, 5);
 					Utility.advance(rc.getLocation().directionTo(LArchonLocation),1);
 				}
 				else{
 					randD = Utility.randomDirection();
 					randD=Utility.isClear(randD);
-					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER) && rc.getTeamParts()>160)
+					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER) && rc.getTeamParts()>140)
 						rc.build(randD, RobotType.SOLDIER);
 				}
 
 			}
-			if(tA)
+			else if(tA)
 			{
 				LArchonLocation = Utility.followingInstructions();
-				repair();
-				//activeNeut();
-				shouldRun();
-				if(rc.getRoundNum()<150){
-					findResource();
-				}
-				else if(rc.getRoundNum()>150){
-					activeNeut();
-				}
-					
-				if(LArchonLocation != null && rc.isCoreReady()&& rc.getLocation().distanceSquaredTo(LArchonLocation) > 5 && rc.getRoundNum()<200){
-				//LArchonLocation.add(Direction.SOUTH, 5);
-				Utility.advance(rc.getLocation().directionTo(LArchonLocation),1);
-			}
-				else{
-					randD = Utility.randomDirection();
-					randD=Utility.isClear(randD);
-					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER) && rc.getTeamParts()>131)
-						rc.build(randD, RobotType.SOLDIER);
 
-				}
+				activeNeut();
+				shouldRun();
+				findResource();
+
+
+
 			}
-			if(fA)
+			else if(fA)
 			{
 				LArchonLocation = Utility.followingInstructions();
-				repair();
-				//activeNeut();
-				shouldRun();
-				if(rc.getRoundNum()<150){
-					findResource();
-				}
-				else if(rc.getRoundNum()>150){
-					activeNeut();
-				}
-					
-				if(LArchonLocation != null && rc.isCoreReady()&& rc.getLocation().distanceSquaredTo(LArchonLocation) > 5 && rc.getRoundNum()<200){
-				//LArchonLocation.add(Direction.SOUTH, 5);
-				Utility.advance(rc.getLocation().directionTo(LArchonLocation),1);
-			}
-				else{
-					randD = Utility.randomDirection();
-					randD=Utility.isClear(randD);
-					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER) && rc.getTeamParts()>131)
-						rc.build(randD, RobotType.SOLDIER);
 
-				}
+				shouldRun();
+
+				findResource();
+
+
+
+			}
+			else{
+				LArchonLocation = Utility.followingInstructions();
+				repair();
+				activeNeut();
+				shouldRun();
+				findResource();
 			}
 
 
@@ -175,7 +150,7 @@ public class Archon{
 		}
 	}
 
-	
+
 	public static void findResource() throws GameActionException {
 		MapLocation [] parts = rc.sensePartLocations(35);
 		//RobotInfo[] neutral = 
@@ -184,11 +159,11 @@ public class Archon{
 			Utility.advance(rc.getLocation().directionTo(parts[0]),1);
 		}
 		else if(parts.length == 0){
-			
+
 		}
 
 	}
-	
+
 	public static void repair() throws GameActionException{
 		RobotInfo[] damaged = rc.senseNearbyRobots(24, rc.getTeam());
 		for(int i = 0; i< damaged.length; i++){
@@ -197,7 +172,7 @@ public class Archon{
 				break;
 			}
 		}
-		
+
 	}
 
 	public static void shouldRun() throws GameActionException{
@@ -215,7 +190,7 @@ public class Archon{
 
 	public static void activeNeut() throws GameActionException{
 
-		RobotInfo[] neutR = rc.senseNearbyRobots(25, Team.NEUTRAL);
+		RobotInfo[] neutR = rc.senseNearbyRobots(24, Team.NEUTRAL);
 
 		for(int i = 0; i<neutR.length; i++){
 			if(rc.getLocation().distanceSquaredTo(neutR[i].location) < 3){
@@ -247,44 +222,45 @@ public class Archon{
 		Direction randD = Utility.randomDirection();
 		RobotInfo[] surround = rc.senseNearbyRobots(2);
 		int numTurrets = 0;
-		
-		
+
+
 		for(int i = 0; i< surround.length; i++){
 			if(surround[i].type == RobotType.TURRET || surround[i].type == RobotType.TTM){
 				numTurrets++;
 			}
 		}
-		
-		
-		if(rc.getRoundNum()< 100){
+
+
+		if(rc.getRoundNum()< 350){
+			shouldRun();
 			if(Utility.isClear(randD)!=null){
 				randD=Utility.isClear(randD);
 				if(rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER))
 					rc.build(randD, RobotType.SOLDIER);
 			}
 		}
-		else if(numTurrets > 7){
+		else if(numTurrets > 6){
 			if(hasBroad == false){
-			rc.broadcastMessageSignal(51 ,0 ,4);
-			hasBroad = true;
+				rc.broadcastMessageSignal(51 ,0 ,4);
+				hasBroad = true;
 			}
 			else if (hasBroad == true){
-			rc.broadcastMessageSignal(51 ,973 ,4);	
+				rc.broadcastMessageSignal(51 ,973 ,4);	
 			}
 		}
 		else{
-//			if(rc.senseRubble(rc.getLocation().add(stepping)) > GameConstants.RUBBLE_OBSTRUCTION_THRESH){
-//				if(rc.isCoreReady()){
-//					rc.clearRubble(stepping);
-//				}
-//			}
+			//			if(rc.senseRubble(rc.getLocation().add(stepping)) > GameConstants.RUBBLE_OBSTRUCTION_THRESH){
+			//				if(rc.isCoreReady()){
+			//					rc.clearRubble(stepping);
+			//				}
+			//			}
 			stepping = Utility.isClear(stepping);
 			if(stepping != null && rc.canBuild(stepping, RobotType.TURRET)){
 				if(rc.isCoreReady()&& rc.canBuild(stepping, RobotType.TURRET))
 					rc.build(stepping, RobotType.TURRET);
 			}
 			if(stepping != null){
-			stepping = stepping.rotateRight();
+				stepping = stepping.rotateRight();
 			}
 			else{
 				stepping = Direction.NORTH;
