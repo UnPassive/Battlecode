@@ -15,6 +15,7 @@ public class Archon{
 	public static boolean sA;
 	public static boolean tA;
 	public static boolean fA;
+	public static boolean hasBroad = false;
 
 	public static void setRun() throws GameActionException{
 
@@ -50,9 +51,13 @@ public class Archon{
 				if(rc.getRoundNum()< 10){
 					Utility.moveFromWall();
 				}
-				defense();
+				
 				if(rc.getRoundNum()<25 || rc.getRoundNum()%50==0)
 					Utility.sendingInstructions();
+				
+				repair();
+				defense();
+				
 
 				randD = Utility.randomDirection();
 
@@ -66,33 +71,69 @@ public class Archon{
 			if(sA)
 			{
 				LArchonLocation = Utility.followingInstructions();
-				activeNeut();
+				repair();
+				//activeNeut();
 				shouldRun();
-				if(rc.getRoundNum()<150)
+				if(rc.getRoundNum()<150){
 					findResource();
-				if(LArchonLocation != null && rc.isCoreReady()&& rc.getRoundNum()<200){
-					LArchonLocation.add(Direction.SOUTH, 5);
+				}
+				else if(rc.getRoundNum()>150){
+					activeNeut();
+				}
+				if(LArchonLocation != null && rc.isCoreReady()&& rc.getLocation().distanceSquaredTo(LArchonLocation) > 5 && rc.getRoundNum()<150){
+					//LArchonLocation.add(Direction.SOUTH, 5);
 					Utility.advance(rc.getLocation().directionTo(LArchonLocation),1);
 				}
 				else{
 					randD = Utility.randomDirection();
 					randD=Utility.isClear(randD);
-					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SCOUT) && rc.getTeamParts()>200)
-						rc.build(randD, RobotType.SCOUT);
+					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER) && rc.getTeamParts()>160)
+						rc.build(randD, RobotType.SOLDIER);
 				}
 
 			}
 			if(tA)
 			{
 				LArchonLocation = Utility.followingInstructions();
-				activeNeut();
+				repair();
+				//activeNeut();
 				shouldRun();
-				if(rc.getRoundNum()<150)
+				if(rc.getRoundNum()<150){
 					findResource();
-				if(LArchonLocation != null && rc.isCoreReady() && rc.getRoundNum()<150){				
-					LArchonLocation.add(Direction.SOUTH, 5);
-					Utility.advance(rc.getLocation().directionTo(LArchonLocation),1);
 				}
+				else if(rc.getRoundNum()>150){
+					activeNeut();
+				}
+					
+				if(LArchonLocation != null && rc.isCoreReady()&& rc.getLocation().distanceSquaredTo(LArchonLocation) > 5 && rc.getRoundNum()<200){
+				//LArchonLocation.add(Direction.SOUTH, 5);
+				Utility.advance(rc.getLocation().directionTo(LArchonLocation),1);
+			}
+				else{
+					randD = Utility.randomDirection();
+					randD=Utility.isClear(randD);
+					if(randD!=null && rc.isCoreReady()&& rc.canBuild(randD, RobotType.SOLDIER) && rc.getTeamParts()>131)
+						rc.build(randD, RobotType.SOLDIER);
+
+				}
+			}
+			if(fA)
+			{
+				LArchonLocation = Utility.followingInstructions();
+				repair();
+				//activeNeut();
+				shouldRun();
+				if(rc.getRoundNum()<150){
+					findResource();
+				}
+				else if(rc.getRoundNum()>150){
+					activeNeut();
+				}
+					
+				if(LArchonLocation != null && rc.isCoreReady()&& rc.getLocation().distanceSquaredTo(LArchonLocation) > 5 && rc.getRoundNum()<200){
+				//LArchonLocation.add(Direction.SOUTH, 5);
+				Utility.advance(rc.getLocation().directionTo(LArchonLocation),1);
+			}
 				else{
 					randD = Utility.randomDirection();
 					randD=Utility.isClear(randD);
@@ -136,13 +177,27 @@ public class Archon{
 
 	
 	public static void findResource() throws GameActionException {
-		MapLocation [] parts = rc.sensePartLocations(1750);
+		MapLocation [] parts = rc.sensePartLocations(35);
 		//RobotInfo[] neutral = 
 
 		if(rc.isCoreReady() && parts.length>0){
 			Utility.advance(rc.getLocation().directionTo(parts[0]),1);
 		}
+		else if(parts.length == 0){
+			
+		}
 
+	}
+	
+	public static void repair() throws GameActionException{
+		RobotInfo[] damaged = rc.senseNearbyRobots(24, rc.getTeam());
+		for(int i = 0; i< damaged.length; i++){
+			if(damaged[i].type != RobotType.ARCHON && damaged[i].health < damaged[i].type.maxHealth){
+				rc.repair(damaged[i].location);
+				break;
+			}
+		}
+		
 	}
 
 	public static void shouldRun() throws GameActionException{
@@ -209,9 +264,20 @@ public class Archon{
 			}
 		}
 		else if(numTurrets > 7){
+			if(hasBroad == false){
 			rc.broadcastMessageSignal(51 ,0 ,4);
+			hasBroad = true;
+			}
+			else if (hasBroad == true){
+			rc.broadcastMessageSignal(51 ,973 ,4);	
+			}
 		}
 		else{
+//			if(rc.senseRubble(rc.getLocation().add(stepping)) > GameConstants.RUBBLE_OBSTRUCTION_THRESH){
+//				if(rc.isCoreReady()){
+//					rc.clearRubble(stepping);
+//				}
+//			}
 			stepping = Utility.isClear(stepping);
 			if(stepping != null && rc.canBuild(stepping, RobotType.TURRET)){
 				if(rc.isCoreReady()&& rc.canBuild(stepping, RobotType.TURRET))
