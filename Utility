@@ -101,7 +101,10 @@ public class Utility{
 		if(rc.getRoundNum()<=100)
 			dig();
 		if(rc.isCoreReady() && enemies.length > 0 && rc.getType() != RobotType.TURRET){
-			if(rc.isWeaponReady()){
+//			if(enemies[0].type == RobotType.ZOMBIEDEN){
+//				rc.broadcastSignal(8);
+//			}
+			if(rc.isWeaponReady() && rc.getType().canAttack()){
 				rc.attackLocation(enemies[0].location);
 			}
 		}
@@ -199,13 +202,13 @@ public class Utility{
 		Direction CD;
 		MapLocation CL;
 
-		if(rc.getRoundNum()<=300)
-		{
+//		if(rc.getRoundNum()<=300)
+//		{
 			for(int i:possibleDirection){
 				CD = Direction.values()[(Direction.NORTH.ordinal()+i+8)%8];
 				CL = rc.getLocation().add(CD);
 				if(rc.getType().canClearRubble() && rc.isCoreReady() ){
-					if(rc.senseRubble(rc.getLocation().add(CD))> 50 &&rc.senseRubble(rc.getLocation().add(CD))<=200)
+					if(rc.senseRubble(rc.getLocation().add(CD))> 50 &&rc.senseRubble(rc.getLocation().add(CD))<=500)
 					{
 						if(rc.getLocation().add(CD)!=null)
 						{
@@ -214,7 +217,7 @@ public class Utility{
 					}
 				}
 			}
-		}
+//		}
 
 		for(int i:possibleDirection){
 			CD = Direction.values()[(Direction.EAST.ordinal()+i+8)%8];
