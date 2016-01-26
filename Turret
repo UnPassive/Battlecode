@@ -10,83 +10,123 @@ public class Turret{
 	public static MapLocation nextPos = null;
 	public static MapLocation arch = null;
 	public static int patience = 0;
-	
-		public static void setRun() throws GameActionException{
-			attack();
-			position();
-		}
 
-		public static void position() throws GameActionException{
-			boolean unpack = false;
-			nextPos = rc.getLocation();
-			Signal[] received = rc.emptySignalQueue();
-			RobotInfo[] otherTur = rc.senseNearbyRobots(2);
-			boolean moveOut = false;
-			boolean nextWave = false;
-			int distToArch = 0;
+	public static void setRun() throws GameActionException{
+		attack();
+		position();
+		//support();
+	}
+
+	public static void position() throws GameActionException{
+		boolean unpack = false;
+		nextPos = rc.getLocation();
+		Signal[] received = rc.emptySignalQueue();
+		RobotInfo[] otherTur = rc.senseNearbyRobots(2);
+		boolean moveOut = false;
+		boolean nextWave = false;
+		int distToArch = 0;
 
 
-			for (Signal s : received) {	
-				if (s.getMessage() != null && s.getMessage()[0] == 51) {
-					moveOut = true;
-					arch = s.getLocation();
-					if(s.getMessage()[1] == 973){
-						nextWave = true;
+		for (Signal s : received) {	
+			if (s.getMessage() != null && s.getMessage()[0] == 51) {
+				moveOut = true;
+				arch = s.getLocation();
+				if(s.getMessage()[1] == 973){
+					nextWave = true;
+				}
+				break;
+			}
+			if(s.getMessage() != null && s.getMessage()[0] != 0&& s.getMessage()[1] !=0 && s.getTeam() == rc.getTeam()){
+
+				MapLocation enemy=s.getLocation();
+				int multiple = s.getMessage()[1];
+				int dir = s.getMessage()[0];
+				Direction[] directions = {Direction.NORTH, Direction.NORTH_EAST,Direction.EAST, Direction.SOUTH_EAST,Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST};
+				int i = 0;
+				for(Direction d: directions){
+					if(d.ordinal()==dir)
+						break;
+					i++;
+				}
+
+				Direction direction = directions[i];
+				enemy=enemy.add(direction, multiple);
+
+				if (rc.isCoreReady() && rc.getType() == RobotType.TURRET){
+					if(rc.isWeaponReady() && rc.getLocation().distanceSquaredTo(enemy) >= GameConstants.TURRET_MINIMUM_RANGE){
+						rc.attackLocation(enemy);
 					}
-					break;
 				}
+
+
 			}
-			
-			if(arch != null){
+		}
+
+		if(arch != null){
 			distToArch = rc.getLocation().distanceSquaredTo(arch);
-			}
-			
-			if(distToArch < 2){
-				if(moveOut == true && arch != null && rc.getType() == RobotType.TURRET){
-					rc.pack();
-					Utility.advance(Utility.isClear(rc.getLocation().directionTo(arch).opposite()),1);		
-				}
-
-
-				if(rc.getType() == RobotType.TTM && rc.getLocation() == nextPos && arch != null){
-					Utility.advance(Utility.isClear(rc.getLocation().directionTo(arch).opposite()),1);
-					moveOut = false;
-				}
-
-				if(rc.getType() == RobotType.TTM && rc.getLocation() != nextPos){
-					rc.unpack();
-					moveOut = false;
-				}
-			}
-			
-			else if(distToArch > 3 && nextWave == true){
-				if(moveOut == true && arch != null && rc.getType() == RobotType.TURRET){
-					rc.pack();
-					Utility.advance(Utility.isClear(rc.getLocation().directionTo(arch).opposite()),1);		
-				}
-				if(rc.getType() == RobotType.TTM && rc.getLocation() == nextPos && arch != null){
-					Utility.advance(Utility.isClear(rc.getLocation().directionTo(arch).opposite()),1);
-					moveOut = false;
-				}
-				if(rc.getType() == RobotType.TTM && (rc.getLocation() != nextPos || patience == 5)){
-					rc.unpack();
-					moveOut = false;
-					patience = 0;
-				}
-				patience ++;
-			}
-
 		}
 
+		if(distToArch < 2){
+			if(moveOut == true && arch != null && rc.getType() == RobotType.TURRET){
+				rc.pack();
+				Utility.advance(Utility.isClear(rc.getLocation().directionTo(arch).opposite()),1);		
+			}
 
-		public static void attack() throws GameActionException{
-			RobotInfo[] enemies = rc.senseHostileRobots(rc.getLocation(), 24);
 
-			if (rc.isCoreReady() && enemies.length > 0 && rc.getType() == RobotType.TURRET){
-				if(rc.isWeaponReady() && rc.getLocation().distanceSquaredTo(enemies[0].location) >= GameConstants.TURRET_MINIMUM_RANGE){
-					rc.attackLocation(enemies[0].location);
-				}
+			if(rc.getType() == RobotType.TTM && rc.getLocation() == nextPos && arch != null){
+				Utility.advance(Utility.isClear(rc.getLocation().directionTo(arch).opposite()),1);
+				moveOut = false;
+			}
+
+			if(rc.getType() == RobotType.TTM && rc.getLocation() != nextPos){
+				rc.unpack();
+				moveOut = false;
 			}
 		}
 
+		else if(distToArch > 3 && nextWave == true){
+			if(moveOut == true && arch != null && rc.getType() == RobotType.TURRET){
+				rc.pack();
+				Utility.advance(Utility.isClear(rc.getLocation().directionTo(arch).opposite()),1);		
+			}
+			if(rc.getType() == RobotType.TTM && rc.getLocation() == nextPos && arch != null){
+				Utility.advance(Utility.isClear(rc.getLocation().directionTo(arch).opposite()),1);
+				moveOut = false;
+			}
+			if(rc.getType() == RobotType.TTM && (rc.getLocation() != nextPos || patience == 5)){
+				rc.unpack();
+				moveOut = false;
+				patience = 0;
+			}
+			patience ++;
+		}
+
+	}
+
+
+	public static void attack() throws GameActionException{
+		RobotInfo[] enemies = rc.senseHostileRobots(rc.getLocation(), 24);
+
+		if (rc.isCoreReady() && enemies.length > 0 && rc.getType() == RobotType.TURRET){
+			if(rc.isWeaponReady() && rc.getLocation().distanceSquaredTo(enemies[0].location) >= GameConstants.TURRET_MINIMUM_RANGE){
+				rc.attackLocation(enemies[0].location);
+
+			}
+		}
+	}
+	public static void support() throws GameActionException{
+		RobotInfo[] enemies = rc.senseHostileRobots(rc.getLocation(), 24);
+
+		if (rc.isCoreReady() && enemies.length > 0 && rc.getType() == RobotType.TURRET){
+			int dir = rc.getLocation().directionTo(enemies[0].location).ordinal();
+			int dis = rc.getLocation().distanceSquaredTo(enemies[0].location);
+
+
+			if(rc.isCoreReady())
+			{
+				rc.broadcastMessageSignal(dir, dis, 20);
+			}
+		}
+
+	}
 }
