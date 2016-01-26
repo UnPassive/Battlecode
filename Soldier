@@ -1,18 +1,39 @@
-ackage ProtoPlayer;
+package ProtoPlayer;
 
 import java.util.ArrayList;
 
 import battlecode.common.*;
 
+
 public class Soldier{
 
 		public static Direction nextDir;
+		public static Direction toDen;
 	
 		public static void setRun() throws GameActionException{
 			MapLocation archon = Utility.followingInstructions();
+			Utility.dig();
 			Utility.attack(2);
 		}
 	
-
+//		public static void findDen() throws GameActionException{
+//			RobotController rc = RobotPlayer.rc;
+//			
+//			Signal[] received = rc.emptySignalQueue();
+//			
+//			for (Signal s : received) {	
+//				if (s.getMessage() == null && s.getTeam() == rc.getTeam()) {
+//					toDen = rc.getLocation().directionTo(s.getLocation());
+//					break;
+//					}
+//				}
+//			
+//			if(rc.isCoreReady() && toDen != null){
+//				Utility.advance(toDen, 1);
+//			}
+//			
+//			
+//		}
+//		
 
 }
